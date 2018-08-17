@@ -1,15 +1,16 @@
 AWD Service Status Utility
-Version 1.0 - August 14, 2018
+Version 1.1 - August 17, 2018
 
 ----------------
 Contents
 ----------------
 1 - Overview
-2 - Requirements
-3 - Installation and configuration
-4 - Known issues
-5 - Instructions for use
-6 - License
+2 - Change history
+3 - Requirements
+4 - Installation and configuration
+5 - Known issues
+6 - Instructions for use
+7 - License
 
 ----------------
 Overview
@@ -18,10 +19,23 @@ Overview
 The AWD Service Status Utility is a ruby-based, command-line program for accessing AWD's published APIs for retrieving batch job status.  It generates an XML file listing every batch job configured in an AWD environment, with the current status and schedule for each job.
 
 ----------------
+Change history
+----------------
+
+v1.1 - Added functionality to the AwdCall class to take a paramaterized URL, allowing duplicate code to be removed from the main file and creating a more flexible, OOP-based model.  Stopped requiring 'P' at the DPC input to trigger the prod environment.  The non/prod variables will now be evaluated based on the environment input.  Added error handling in the event a non-200 HTTP code is returned by the server.
+
+----------------
 Requirements
 ----------------
 
 This utility requires Ruby.  It was built and tested on version 2.5.1.  The installation site must also have access to the targeted AWD environments.
+
+The following Ruby gems are required:
+- net/http
+- nokogiri
+- csv
+- logger
+- io/console
 
 ----------------
 Installation and configuration
@@ -46,7 +60,7 @@ None
 Instructions for use
 ----------------
 
-Launch the AWD Service Status.rb file.  At the prompt, enter the desired environment.  The DPC prompt allows you to switch between the endpoints configured in the env_config.rb file.  'N' triggers the $server value, 'Y' triggers to $server_dpc_non and 'P' triggers the $server_dpc_prod.  Enter valid credentials for the environment.  The user must have permission to the AWD Design Studio.
+Launch the AWD Service Status.rb file.  At the prompt, enter the desired environment.  The DPC prompt allows you to switch between the endpoints configured in the env_config.rb file.  'N' triggers the $server value, 'Y' triggers the $server_dpc_prod value if the environment you entered is prod and $server_dpc_non if you entered a non-prod environment.  Enter valid credentials for the environment.  The user must have permission to the AWD Design Studio.
 
 The utility will then access the environment and save the batch job status in the file sysstatus.xml.  Open the XML file to view the information.
 
