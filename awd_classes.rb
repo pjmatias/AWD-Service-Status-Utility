@@ -7,18 +7,21 @@ require 'io/console'
 require_relative 'env_config.rb'
 
 class AwdCall
-  attr_writer :uri, :header, :body, :env
+  attr_accessor :uri, :header, :body, :env
   
-  def initialize(env, dpc)
+  def initialize(env, dpc, url = 'awdweb')
     @header = {'Content-Type' => 'application/xml'}
     @env = env
     case dpc
       when "N"
-        @uri = URI.parse("#{$server}#{@env}app/awdServer/awd/awdweb")
+        @uri = URI.parse("#{$server}#{@env}app/awdServer/awd/#{url}")
       when "Y"
-        @uri = URI.parse("#{$server_dpc_non}#{@env}app/awdServer/awd/awdweb")
-	  when "P"
-        @uri = URI.parse("#{$server_dpc_prod}#{@env}app/awdServer/awd/awdweb")
+		case env
+			when "prod"
+				@uri = URI.parse("#{$server_dpc_prod}#{@env}app/awdServer/awd/#{url}")
+			else
+				@uri = URI.parse("#{$server_dpc_non}#{@env}app/awdServer/awd/#{url}")
+	  end
     end
   end
   
@@ -31,6 +34,8 @@ class AwdCall
         request = Net::HTTP::Put.new(@uri.request_uri, @header)
       when "get"
         request = Net::HTTP::Get.new(@uri.request_uri, @header)
+	  when "delete"
+		request = Net::HTTP::Delete.new(@uri.request_uri, @header)
     end
   request.basic_auth $user, $password
   request.body = @body
@@ -231,5 +236,19 @@ class AwdCall
 <password>#{upass}</password></resetPassword></UserViewRequest>"
 
   makehttpcall("post")
+  end
+  
+  def nocontent(verb)
+    @body = ""
+	@header = {'Accept'=> 'application/vnd.dsttechnologies.awd+xml', 'Content-Type' => 'application/vnd.dsttechnologies.awd+xml'}
+
+  makehttpcall(verb)
+  end
+  
+  def updateobject(body)
+    @body = "#{body}"
+	@header = {'Accept'=> 'application/vnd.dsttechnologies.awd+xml', 'Content-Type' => 'application/vnd.dsttechnologies.awd+xml'}
+
+  makehttpcall("put")
   end
 end
